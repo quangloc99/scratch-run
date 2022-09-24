@@ -127,8 +127,17 @@ function run_scratch_file(filename) {
     return c === ' ' || c === '\t' || c === '\v' || c === '\f';
   }
 
+  let current_stdin_answer = '';
+  function emit_answer(answer) {
+    current_stdin_answer = answer;
+    ask_queue.front().resolve();
+    ask_queue.shift();
+  }
+    
+  vm.runtime._primitives.sensing_answer = () => current_stdin_answer;
+
   function try_to_answer() {
-    if (ask_queue.front()) {
+    if (ask_queue.front().read_token) {
       // read_token
       while (lines.length > 0) {
         const line_front = lines.front();
@@ -146,25 +155,21 @@ function run_scratch_file(filename) {
           ) {
             nxt_pos++;
           }
-          vm.runtime.emit(
-            'ANSWER',
-            line_front.substr(cur_pos, nxt_pos - cur_pos)
-          );
+          const answer = line_front.substr(cur_pos, nxt_pos - cur_pos);
           cur_pos = nxt_pos;
           if (cur_pos === line_front.length) {
             cur_pos = 0;
             lines.shift();
           }
-          ask_queue.shift();
-          break;
+          emit_answer(answer);
+          return; 
         }
       }
     } else {
       // read_line
       if (lines.length > 0) {
-        vm.runtime.emit('ANSWER', lines.shift().substr(cur_pos));
+        emit_answer(lines.shift().substr(cur_pos));
         cur_pos = 0;
-        ask_queue.shift();
       }
     }
   }
@@ -182,12 +187,16 @@ function run_scratch_file(filename) {
     }
   });
 
-  vm.runtime.on('QUESTION', function (question) {
-    if (question !== null) {
-      ask_queue.push(question === 'read_token');
-      try_to_answer();
-    }
-  });
+    
+  vm.runtime._primitives.sensing_askandwait = (args, util) => {
+    const question = String(args.QUESTION);
+    return new Promise((resolve) => {
+      if (question !== null) {
+        ask_queue.push({read_token: question === 'read_token', resolve});
+        try_to_answer();
+      }
+    });
+  };
 
   fs.readFile(filename, function (err, data) {
     if (err) {
