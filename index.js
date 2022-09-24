@@ -130,8 +130,7 @@ function run_scratch_file(filename) {
   let current_stdin_answer = '';
   function emit_answer(answer) {
     current_stdin_answer = answer;
-    ask_queue.front().resolve();
-    ask_queue.shift();
+    ask_queue.shift().resolve();
   }
     
   vm.runtime._primitives.sensing_answer = () => current_stdin_answer;
