@@ -20,10 +20,10 @@ def get_executable():
 
 
 class TestScratchRun(unittest.TestCase):
-    executable = get_executable()
+    executable = ['node', './index.js']
 
     def test_say_think(self):
-        proc = Popen([self.executable, 'say_think.sb3'], stdin=PIPE, stdout=PIPE, stderr=PIPE)
+        proc = Popen([*self.executable, 'say_think.sb3'], stdin=PIPE, stdout=PIPE, stderr=PIPE)
         stdout, stderr = proc.communicate()
 
         self.assertEqual(proc.returncode, 0)
@@ -33,7 +33,7 @@ class TestScratchRun(unittest.TestCase):
     def test_echo(self):
         test_message = b'echo: Hello, World!\n'
 
-        proc = Popen([self.executable, 'echo.sb3'], stdin=PIPE, stdout=PIPE, stderr=PIPE)
+        proc = Popen([*self.executable, 'echo.sb3'], stdin=PIPE, stdout=PIPE, stderr=PIPE)
         stdout, stderr = proc.communicate(test_message)
 
         self.assertEqual(proc.returncode, 0)
@@ -43,7 +43,7 @@ class TestScratchRun(unittest.TestCase):
     def test_echo_json(self):
         test_message = b'echo: Hello, World!\n'
 
-        proc = Popen([self.executable, 'echo.json'], stdin=PIPE, stdout=PIPE, stderr=PIPE)
+        proc = Popen([*self.executable, 'echo.json'], stdin=PIPE, stdout=PIPE, stderr=PIPE)
         stdout, stderr = proc.communicate(test_message)
 
         self.assertEqual(proc.returncode, 0)
@@ -51,7 +51,7 @@ class TestScratchRun(unittest.TestCase):
         self.assertEqual(stderr, b'')
 
     def test_aplusb_token(self):
-        proc = Popen([self.executable, 'aplusb.sb3'], stdin=PIPE, stdout=PIPE, stderr=PIPE)
+        proc = Popen([*self.executable, 'aplusb.sb3'], stdin=PIPE, stdout=PIPE, stderr=PIPE)
         stdout, stderr = proc.communicate(b'123 456\n')
 
         self.assertEqual(proc.returncode, 0)
@@ -59,7 +59,7 @@ class TestScratchRun(unittest.TestCase):
         self.assertEqual(stderr, b'')
 
     def test_aplusb_line(self):
-        proc = Popen([self.executable, 'aplusb.sb3'], stdin=PIPE, stdout=PIPE, stderr=PIPE)
+        proc = Popen([*self.executable, 'aplusb.sb3'], stdin=PIPE, stdout=PIPE, stderr=PIPE)
         stdout, stderr = proc.communicate(b'123\n456\n')
 
         self.assertEqual(proc.returncode, 0)
@@ -67,7 +67,7 @@ class TestScratchRun(unittest.TestCase):
         self.assertEqual(stderr, b'')
 
     def test_permutation(self):
-        proc = Popen([self.executable, 'permutation.sb3'], stdin=PIPE, stdout=PIPE, stderr=PIPE)
+        proc = Popen([*self.executable, 'permutation.sb3'], stdin=PIPE, stdout=PIPE, stderr=PIPE)
         stdout, stderr = proc.communicate(b'3\n')
 
         self.assertEqual(proc.returncode, 0)
@@ -80,7 +80,7 @@ class TestScratchRun(unittest.TestCase):
         for i in range(N):
             inp += str(i + 1) + '\n'
 
-        proc = Popen([self.executable, 'sum_1ton.sb3'], stdin=PIPE, stdout=PIPE, stderr=PIPE)
+        proc = Popen([*self.executable, 'sum_1ton.sb3'], stdin=PIPE, stdout=PIPE, stderr=PIPE)
         try:
             stdout, stderr = proc.communicate(inp.encode(), timeout=2)
         except TimeoutExpired:
@@ -92,7 +92,7 @@ class TestScratchRun(unittest.TestCase):
         self.assertEqual(stderr, b'')
 
     def test_invalid_file(self):
-        proc = Popen([self.executable, 'invalid.sb3'], stdin=PIPE, stdout=PIPE, stderr=PIPE)
+        proc = Popen([*self.executable, 'invalid.sb3'], stdin=PIPE, stdout=PIPE, stderr=PIPE)
         stdout, stderr = proc.communicate()
 
         self.assertEqual(proc.returncode, 1)
@@ -100,7 +100,7 @@ class TestScratchRun(unittest.TestCase):
         self.assertEqual(stderr, b'scratch-vm encountered an error: Error: Non-ascii character in FixedAsciiString\n')
 
     def test_check_invalid_file(self):
-        proc = Popen([self.executable, '--check', 'invalid.sb3'], stdin=PIPE, stdout=PIPE, stderr=PIPE)
+        proc = Popen([*self.executable, '--check', 'invalid.sb3'], stdin=PIPE, stdout=PIPE, stderr=PIPE)
         stdout, stderr = proc.communicate()
 
         self.assertEqual(proc.returncode, 1)
@@ -108,7 +108,7 @@ class TestScratchRun(unittest.TestCase):
         self.assertEqual(stderr, b'Not a valid Scratch file: Error: Non-ascii character in FixedAsciiString\n')
 
     def test_music_extension(self):
-        proc = Popen([self.executable, 'music_extension.sb3'], stdin=PIPE, stdout=PIPE, stderr=PIPE)
+        proc = Popen([*self.executable, 'music_extension.sb3'], stdin=PIPE, stdout=PIPE, stderr=PIPE)
         stdout, stderr = proc.communicate()
 
         self.assertEqual(proc.returncode, 1)
@@ -116,7 +116,7 @@ class TestScratchRun(unittest.TestCase):
         self.assertEqual(stderr, b'scratch-vm encountered an error: Can not use extension music\n')
 
     def test_check_music_extension(self):
-        proc = Popen([self.executable, '--check', 'music_extension.sb3'], stdin=PIPE, stdout=PIPE, stderr=PIPE)
+        proc = Popen([*self.executable, '--check', 'music_extension.sb3'], stdin=PIPE, stdout=PIPE, stderr=PIPE)
         stdout, stderr = proc.communicate()
 
         self.assertEqual(proc.returncode, 1)
